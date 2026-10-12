@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070b13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Player Desk">
+<title>Torn Player Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#070b13;--panel:rgba(17,25,42,.78);--panel2:rgba(26,38,62,.85);--line:rgba(145,171,214,.16);
+  --text:#f4f7ff;--muted:#93a3c0;--accent:#7cf7d4;--accent2:#a0ffe2;--blue:#82aaff;--warn:#ffd166;--red:#ff758f;--green:#6ee7a0;
+  --display:"Outfit",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --body:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;color:var(--text);font:15px/1.55 var(--body);
+  background:radial-gradient(ellipse at 10% -5%,rgba(43,111,170,.28),transparent 40%),radial-gradient(ellipse at 92% 5%,rgba(30,202,164,.16),transparent 34%),linear-gradient(150deg,#060910,#0b1220 50%,#080d17);
+  background-attachment:fixed;padding:0 16px calc(104px + env(safe-area-inset-bottom,0px))}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.14;
+  background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+  background-size:34px 34px;-webkit-mask-image:linear-gradient(to bottom,#000,transparent 80%);mask-image:linear-gradient(to bottom,#000,transparent 80%)}
+.err{position:sticky;top:0;z-index:30;margin:0 -16px;padding:10px 16px;background:#5a1427;color:#ffd5dd;font-size:13px;overflow-wrap:anywhere}
+.top{max-width:980px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top,0px)) 0 8px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.mark{width:42px;height:42px;border-radius:13px;flex:none;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),var(--blue));color:#05221b;font:800 18px var(--display);box-shadow:0 8px 24px rgba(124,247,212,.2)}
+.eyebrow{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700}
+h1{font:800 clamp(22px,5vw,30px)/1.1 var(--display);margin:0;letter-spacing:-.02em}
+h2{font:700 19px var(--display);margin:0 0 4px;letter-spacing:-.01em}
+h3{font:700 15px var(--display);margin:0}
+p{margin:0}
+.muted{color:var(--muted)}.small{font-size:12px}.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+main{max-width:980px;margin:0 auto}
+.view{display:none}
+.view.active{display:flex;flex-direction:column;gap:14px;animation:rise .35s both}
+.card{background:linear-gradient(150deg,rgba(18,28,47,.9),rgba(12,19,33,.86));border:1px solid var(--line);border-radius:22px;padding:clamp(16px,3vw,24px);box-shadow:0 16px 42px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.04);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);display:flex;flex-direction:column;gap:12px;min-width:0}
+.hero{background:linear-gradient(120deg,rgba(21,45,66,.95),rgba(13,22,39,.8) 60%,rgba(21,52,58,.8));border-color:rgba(124,247,212,.22)}
+.hero h2{font-size:clamp(22px,4.5vw,30px)}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:rgba(24,36,58,.8);font-size:12px;font-weight:600;white-space:nowrap;color:var(--muted)}
+.chip:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--muted)}
+.chip.ok{color:var(--accent);border-color:rgba(124,247,212,.3)}.chip.ok:before{background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.chip.bad{color:var(--red);border-color:rgba(255,117,143,.3)}.chip.bad:before{background:var(--red)}
+.chip.warn{color:var(--warn);border-color:rgba(255,209,102,.3)}.chip.warn:before{background:var(--warn)}
+.chip.plain:before{display:none}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0;flex:1 1 150px}
+label,.lbl{font-size:12px;color:var(--muted);letter-spacing:.02em}
+input,select{width:100%;min-width:0;color:var(--text);background:rgba(5,10,19,.75);border:1px solid rgba(145,171,214,.22);border-radius:12px;padding:12px;font:inherit;transition:border-color .2s,box-shadow .2s}
+input:focus,select:focus,button:focus-visible{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,247,212,.14)}
+input[type=range]{padding:0;height:34px;accent-color:var(--accent);background:none;border:none}
+input[type=checkbox]{width:18px;height:18px;padding:0;accent-color:var(--accent);flex:none}
+.check{display:flex;gap:10px;align-items:center;font-size:13px;color:var(--muted);cursor:pointer}
+button{font:700 14px var(--body);border:0;border-radius:12px;padding:12px 18px;cursor:pointer;color:#05221b;background:linear-gradient(115deg,var(--accent),var(--accent2));box-shadow:0 6px 20px rgba(124,247,212,.12);transition:transform .15s,filter .15s}
+button:hover{filter:brightness(1.07);transform:translateY(-1px)}
+button:active{transform:scale(.98)}
+button:disabled{opacity:.5;cursor:wait;transform:none}
+button.ghost{background:rgba(26,38,62,.85);color:var(--text);border:1px solid var(--line);box-shadow:none}
+button.small{padding:7px 12px;font-size:12px}
+.status{padding:12px 14px;border-radius:12px;background:rgba(5,10,19,.6);border:1px solid var(--line);color:var(--muted);overflow-wrap:anywhere;white-space:pre-wrap;font-size:14px}
+.status.ok{color:var(--accent);border-color:rgba(124,247,212,.25);background:rgba(24,92,75,.12)}
+.status.error{color:var(--red);border-color:rgba(255,117,143,.28);background:rgba(100,25,42,.16)}
+.gauges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media(min-width:720px){.gauges{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.gauge{position:relative;padding:14px 10px 12px;border-radius:18px;background:var(--panel2);border:1px solid var(--line);text-align:center;display:flex;flex-direction:column;align-items:center;gap:2px}
+.ring{width:96px;height:96px;position:relative}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:7;stroke-linecap:round}
+.ring .trk{stroke:rgba(145,171,214,.14)}
+.ring .val{stroke-dasharray:213.63;transition:stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1)}
+.ring .txt{position:absolute;inset:0;display:grid;place-content:center;font:500 17px var(--mono)}
+.ring .txt small{display:block;font-size:10px;color:var(--muted);text-align:center}
+.g-name{font:700 14px var(--display);margin-top:6px}
+.g-eta{font:12px var(--mono);color:var(--muted)}
+.cds{display:flex;gap:10px;flex-wrap:wrap}
+.cd{flex:1 1 130px;padding:12px 14px;border-radius:14px;background:var(--panel2);border:1px solid var(--line)}
+.cd b{display:block;font:500 20px var(--mono)}
+.checks{display:flex;flex-wrap:wrap;gap:8px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.tile{padding:13px;border-radius:14px;background:var(--panel2);border:1px solid var(--line);transition:transform .2s,border-color .2s}
+.tile:hover{transform:translateY(-2px);border-color:rgba(124,247,212,.3)}
+.tile .n{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.tile .v{font:500 22px var(--mono);margin-top:2px;overflow-wrap:anywhere}
+.bars{display:flex;flex-direction:column;gap:12px}
+.br .top{display:flex;justify-content:space-between;gap:10px;font-size:13px;margin-bottom:5px}
+.br .track{height:10px;border-radius:6px;background:rgba(145,171,214,.12);overflow:hidden;position:relative}
+.br .track i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:linear-gradient(90deg,var(--blue),var(--accent));transition:width .5s}
+.br .track i.base{background:rgba(145,171,214,.35)}
+.item{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:16px;background:var(--panel2);border:1px solid var(--line)}
+.item .head{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.item .head>*{min-width:0;overflow-wrap:anywhere}
+.good{color:var(--green)}.loss{color:var(--red)}
+.list{display:flex;flex-direction:column;gap:10px}
+.note{border-left:3px solid var(--warn);padding:10px 12px;border-radius:8px;background:rgba(255,209,102,.07);color:#ffe7a6;font-size:13px}
+.dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:20;width:min(560px,calc(100% - 24px));display:grid;grid-template-columns:repeat(6,1fr);gap:2px;padding:6px;border-radius:20px;background:rgba(9,14,25,.82);border:1px solid var(--line);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.dock button{background:none;color:var(--muted);box-shadow:none;padding:10px 0 8px;border-radius:14px;font:600 11px var(--body);display:flex;flex-direction:column;align-items:center;gap:3px}
+.dock button svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dock button[aria-selected=true]{color:#05221b;background:linear-gradient(120deg,var(--accent),var(--accent2))}
+.dock button:hover{transform:none}
+#toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:40;padding:10px 16px;border-radius:12px;background:#0e1a2e;border:1px solid rgba(124,247,212,.3);color:var(--text);font-size:13px;transition:all .25s;max-width:calc(100% - 32px)}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+footer{max-width:980px;margin:22px auto 0;color:var(--muted);font-size:12px;border-top:1px solid var(--line);padding-top:16px}
+a{color:var(--blue)}
+[hidden]{display:none!important}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="err" id="errBanner" hidden></div>
+<header class="top">
+  <div class="brand"><div class="mark">TP</div><div><div class="eyebrow">Torn City</div><h1>Player Desk</h1></div></div>
+  <span class="chip" id="connChip">Not connected</span>
+</header>
+
+<main>
+<!-- HOME -->
+<section class="view active" id="home">
+  <div class="card hero">
+    <h2>Connect your Torn account</h2>
+    <p class="muted">Your key is used in this browser to ask Torn for your data. It goes nowhere else. A Limited access key covers everything on this page.</p>
+    <div class="row">
+      <div class="field" style="flex:3 1 220px"><label for="apiKey">Torn API key</label><input id="apiKey" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste your API key"></div>
+      <button id="connect" type="button">Connect</button>
+      <button id="clearKey" class="ghost" type="button">Clear</button>
+    </div>
+    <label class="check"><input type="checkbox" id="remember"> Remember my key on this device</label>
+    <label class="check"><input type="checkbox" id="auto"> Refresh every minute while this page is open</label>
+    <div id="apiStatus" class="status">Not connected. Paste your key and tap Connect.</div>
+    <p class="small muted">Make a key in Torn under Settings, API Keys. Never share it or post a screenshot that shows it.</p>
+  </div>
+
+  <div class="card" id="playerCard" hidden>
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <div style="min-width:0"><h2 id="pName">Player</h2><p class="muted small" id="pSub"></p></div>
+      <span class="chip" id="pStatus">-</span>
+    </div>
+    <div class="gauges" id="gauges"></div>
+    <div class="cds" id="cds"></div>
+    <div>
+      <div class="lbl" style="margin-bottom:8px">Connection check</div>
+      <div class="checks" id="checks"></div>
+    </div>
+    <p class="small muted" id="stamp"></p>
+  </div>
+</section>
+
+<!-- GYM -->
+<section class="view" id="gym">
+  <div class="card">
+    <div class="row" style="justify-content:space-between;align-items:center"><div><h2>Gym planner</h2><p class="muted small">Split your energy across stats and see where you land.</p></div><button class="ghost small" id="loadStats" type="button">Use my Torn stats</button></div>
+    <div class="grid">
+      <div class="field"><label for="gStr">Strength</label><input id="gStr" type="number" min="0" inputmode="decimal"></div>
+      <div class="field"><label for="gDef">Defense</label><input id="gDef" type="number" min="0" inputmode="decimal"></div>
+      <div class="field"><label for="gSpd">Speed</label><input id="gSpd" type="number" min="0" inputmode="decimal"></div>
+      <div class="field"><label for="gDex">Dexterity</label><input id="gDex" type="number" min="0" inputmode="decimal"></div>
+    </div>
+    <div class="grid">
+      <div class="field"><label for="gEnergy">Energy to spend</label><input id="gEnergy" type="number" min="0" inputmode="decimal"></div>
+      <div class="field"><label for="gPer">Energy per train</label><input id="gPer" type="number" min="1" inputmode="decimal"></div>
+      <div class="field"><label for="gGain">Expected gain per train</label><input id="gGain" type="number" min="0" step="any" inputmode="decimal"></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Where the trains go</h3>
+    <div class="grid" id="sliders"></div>
+  </div>
+  <div class="card">
+    <h3>Result</h3>
+    <div id="gymSummary" class="status">Enter your stats and energy to see a plan.</div>
+    <div class="bars" id="gymBars"></div>
+    <p class="note">You enter the expected gain yourself. This planner does not claim to predict Torn's exact gym formula.</p>
+  </div>
+</section>
+
+<!-- ABROAD -->
+<section class="view" id="abroad">
+  <div class="card">
+    <h2>Abroad profit</h2>
+    <p class="muted small">Add an item with the price abroad and where you expect to sell it. The list ranks by profit.</p>
+    <div class="grid">
+      <div class="field"><label for="aName">Item</label><input id="aName" autocomplete="off"></div>
+      <div class="field"><label for="aBuy">Buy price ($)</label><input id="aBuy" type="number" min="0" step="any" inputmode="decimal"></div>
+      <div class="field"><label for="aSell">Sell price ($)</label><input id="aSell" type="number" min="0" step="any" inputmode="decimal"></div>
+      <div class="field"><label for="aQty">Quantity</label><input id="aQty" type="number" min="1" inputmode="numeric"></div>
+      <div class="field"><label for="aCost">Travel and other costs ($)</label><input id="aCost" type="number" min="0" step="any" inputmode="decimal"></div>
+      <div class="field"><label for="aFee">Market fee (%)</label><input id="aFee" type="number" min="0" max="100" step="any" inputmode="decimal" value="0"></div>
+      <div class="field"><label for="aFlight">One-way flight (minutes)</label><input id="aFlight" type="number" min="0" inputmode="numeric"></div>
+    </div>
+    <div class="row"><button id="aAdd" type="button">Add to list</button><button id="aClear" class="ghost" type="button">Clear list</button></div>
+  </div>
+  <div class="card"><h3>Ranked by profit</h3><div class="list" id="aList"></div><p class="note">Prices are what you type in. Check live prices, stock and capacity in the game before you buy.</p></div>
+</section>
+
+<!-- CRIMES -->
+<section class="view" id="crimes">
+  <div class="card">
+    <div class="row" style="justify-content:space-between;align-items:center"><div><h2>Crime record</h2><p class="muted small">Read only. Shows what Torn returns for your key.</p></div><button class="ghost small" id="refreshCrimes" type="button">Refresh</button></div>
+    <div class="field"><label for="cFilter">Filter</label><input id="cFilter" placeholder="Type to filter, for example theft" autocomplete="off"></div>
+    <div id="crimeBox" class="status">Connect your key on the Home tab first.</div>
+  </div>
+</section>
+
+<!-- FOOD -->
+<section class="view" id="food">
+  <div class="card">
+    <h2>Eating and energy</h2>
+    <p class="muted small">Add items with the numbers you see in the game. The best energy per dollar comes first.</p>
+    <div class="grid">
+      <div class="field"><label for="fName">Item</label><input id="fName" autocomplete="off"></div>
+      <div class="field"><label for="fPrice">Price ($)</label><input id="fPrice" type="number" min="0" step="any" inputmode="decimal"></div>
+      <div class="field"><label for="fEnergy">Energy gained</label><input id="fEnergy" type="number" min="0" step="any" inputmode="decimal"></div>
+      <div class="field"><label for="fHappy">Happiness gained</label><input id="fHappy" type="number" step="any" inputmode="decimal"></div>
+    </div>
+    <div class="row"><button id="fAdd" type="button">Add item</button><button id="fClear" class="ghost" type="button">Clear</button></div>
+  </div>
+  <div class="card"><h3>Comparison</h3><div class="bars" id="fList"></div></div>
+</section>
+
+<!-- NOTES -->
+<section class="view" id="notes">
+  <div class="card">
+    <h2>Addiction and cooldown notes</h2>
+    <p class="muted small">Notes stay on this device. The API does not share every addiction value, so write what you see in the game.</p>
+    <div class="grid">
+      <div class="field"><label for="nLevel">Addiction level or note</label><input id="nLevel" autocomplete="off"></div>
+      <div class="field"><label for="nLast">Last drug use</label><input id="nLast" type="datetime-local"></div>
+      <div class="field" style="flex-basis:100%"><label for="nNote">Reminder or next action</label><input id="nNote" autocomplete="off"></div>
+    </div>
+    <div id="nSince" class="status">No drug use time saved.</div>
+    <div class="row"><button id="nClear" class="ghost" type="button">Clear notes</button></div>
+  </div>
+</section>
+</main>
+
+<footer>Torn Player Desk. An unofficial fan-made tool, not affiliated with Torn. Follow Torn's API terms. Your data stays in your browser.</footer>
+
+<nav class="dock" id="dock" role="tablist" aria-label="Sections">
+  <button role="tab" data-tab="home" aria-selected="true" type="button"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>Home</button>
+  <button role="tab" data-tab="gym" aria-selected="false" type="button"><svg viewBox="0 0 24 24"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg>Gym</button>
+  <button role="tab" data-tab="abroad" aria-selected="false" type="button"><svg viewBox="0 0 24 24"><path d="M2 14l20-9-6 15-4-6z"/></svg>Abroad</button>
+  <button role="tab" data-tab="crimes" aria-selected="false" type="button"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/></svg>Crimes</button>
+  <button role="tab" data-tab="food" aria-selected="false" type="button"><svg viewBox="0 0 24 24"><path d="M7 3v8a3 3 0 006 0V3M10 3v18M17 3c-2 2-2 6 0 8v10"/></svg>Food</button>
+  <button role="tab" data-tab="notes" aria-selected="false" type="button"><svg viewBox="0 0 24 24"><path d="M5 3h10l4 4v14H5z"/><path d="M9 12h6M9 16h6"/></svg>Notes</button>
+</nav>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var num = function (v) { var x = parseFloat(String(v == null ? '' : v).replace(/,/g, '')); return isFinite(x) ? x : 0; };
+  var fmt = function (n) { return Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 }); };
+  var money = function (n) { return (n < 0 ? '-' : '') + '$' + Math.abs(Math.round(n)).toLocaleString(); };
+  var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+
+  /* ---------- visible errors, so a failure is never silent ---------- */
+  function showErr(msg) { var b = $('errBanner'); if (b) { b.hidden = false; b.textContent = 'Page error: ' + msg + ' Reload the page. If it keeps happening, send a screenshot of this line.'; } }
+  window.addEventListener('error', function (e) { showErr(e.message || 'unknown'); });
+  window.addEventListener('unhandledrejection', function (e) { showErr((e.reason && e.reason.message) || 'a request failed'); });
+  function safe(fn) { return function (ev) { try { var r = fn(ev); if (r && r.catch) r.catch(function (e) { showErr(e.message); }); } catch (e) { showErr(e.message); } }; }
+  function on(id, evt, fn) { var el = $(id); if (el) el.addEventListener(evt, safe(fn)); }
+
+  var toastT = 0;
+  function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove('show'); }, 2200); }
+  function setStatus(msg, kind) { var el = $('apiStatus'); el.textContent = msg; el.className = 'status' + (kind ? ' ' + kind : ''); }
+
+  /* ---------- saved state (never the key unless you tick Remember) ---------- */
+  var SKEY = 'tornPlayerDesk.v2', KKEY = 'tornPlayerDesk.key';
+  function def() { return { gym: { str: '', def: '', spd: '', dex: '', energy: '', per: '10', gain: '', w: { str: 25, def: 25, spd: 25, dex: 25 } }, abroad: [], foods: [], notes: { level: '', last: '', note: '' } }; }
+  var S = def();
+  try { var saved = JSON.parse(localStorage.getItem(SKEY)); if (saved && typeof saved === 'object') { S.gym = Object.assign(S.gym, saved.gym || {}); S.gym.w = Object.assign({ str: 25, def: 25, spd: 25, dex: 25 }, (saved.gym && saved.gym.w) || {}); S.abroad = Array.isArray(saved.abroad) ? saved.abroad : []; S.foods = Array.isArray(saved.foods) ? saved.foods : []; S.notes = Object.assign(S.notes, saved.notes || {}); } } catch (e) { /* storage unavailable */ }
+  function save() { try { localStorage.setItem(SKEY, JSON.stringify(S)); } catch (e) { /* storage unavailable */ } }
+
+  /* ---------- tabs ---------- */
+  var tabs = document.querySelectorAll('[data-tab]');
+  function show(name) {
+    Array.prototype.forEach.call(document.querySelectorAll('.view'), function (v) { v.classList.toggle('active', v.id === name); });
+    Array.prototype.forEach.call(tabs, function (b) { b.setAttribute('aria-selected', b.getAttribute('data-tab') === name ? 'true' : 'false'); });
+    window.scrollTo(0, 0);
+  }
+  Array.prototype.forEach.call(tabs, function (b) { b.addEventListener('click', safe(function () { show(b.getAttribute('data-tab')); })); });
+
+  /* ---------- Torn API ---------- */
+  var ERRS = { 2: 'Torn says this key is not valid. Copy it again from Settings, API Keys.', 5: 'Too many requests. Wait a minute and try again.', 8: 'Torn blocked your connection for a moment. Try again soon.', 9: 'The Torn API is switched off right now.', 13: 'The owner of this key has been inactive.', 16: 'This key does not have enough access for that data. A Limited access key works.', 18: 'This key is paused in Torn.' };
+  function sel(selection, key) {
+    return fetch('https://api.torn.com/user/?selections=' + encodeURIComponent(selection) + '&key=' + encodeURIComponent(key), { cache: 'no-store' }).then(function (res) {
+      return res.json().then(function (data) {
+        if (data && data.error) { var e = new Error((ERRS[data.error.code] || data.error.error || 'Torn error') + ' (code ' + data.error.code + ')'); e.code = data.error.code; throw e; }
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return data;
+      }, function () { throw new Error('Torn sent a reply this page could not read (HTTP ' + res.status + ').'); });
+    });
+  }
+  var D = {}, fetchedAt = 0, ticker = 0, autoT = 0;
+
+  function connect(silent) {
+    var key = $('apiKey').value.trim();
+    if (!key) { setStatus('Paste your Torn API key first.', 'error'); return Promise.resolve(); }
+    var btn = $('connect'); btn.disabled = true;
+    if (!silent) setStatus('Contacting Torn...');
+    var names = ['basic', 'bars', 'cooldowns', 'battlestats', 'crimes'];
+    return Promise.all(names.map(function (n) { return sel(n, key).then(function (d) { return { n: n, d: d }; }, function (e) { return { n: n, e: e }; }); })).then(function (rs) {
+      btn.disabled = false;
+      var ok = rs.filter(function (r) { return r.d; });
+      renderChecks(rs);
+      if (!ok.length) {
+        D = {}; $('playerCard').hidden = true; setChip('Not connected', '');
+        setStatus((rs[0].e && rs[0].e.message || 'Could not reach Torn.') + '\nNothing was saved. You can check the key in Torn under Settings, API Keys.', 'error');
+        return;
+      }
+      rs.forEach(function (r) { if (r.d) D[r.n] = r.d; else delete D[r.n]; });
+      fetchedAt = Date.now();
+      persistKey();
+      renderPlayer();
+      renderCrimes();
+      autofillGym(false);
+      var bad = rs.filter(function (r) { return r.e; }).length;
+      setStatus(bad ? 'Connected. ' + bad + ' of 5 checks did not return data. See the connection check below.' : 'Connected. All five checks passed.', 'ok');
+      setChip('Connected', 'ok');
+      if (!silent) toast('Connected');
+    });
+  }
+  function setChip(t, k) { var c = $('connChip'); c.textContent = t; c.className = 'chip' + (k ? ' ' + k : ''); }
+  function renderChecks(rs) {
+    var label = { basic: 'Profile', bars: 'Energy and bars', cooldowns: 'Cooldowns', battlestats: 'Battle stats', crimes: 'Crimes' };
+    $('checks').innerHTML = rs.map(function (r) { return '<span class="chip ' + (r.d ? 'ok' : 'bad') + '" title="' + esc(r.e ? r.e.message : 'OK') + '">' + label[r.n] + (r.d ? '' : ': ' + esc((r.e && r.e.code) ? 'code ' + r.e.code : 'failed')) + '</span>'; }).join('');
+  }
+
+  /* ---------- player, gauges, cooldowns ---------- */
+  var COLORS = { energy: '#7cf7d4', nerve: '#ff758f', happy: '#ffd166', life: '#82aaff' };
+  function renderPlayer() {
+    var b = D.basic ? (D.basic.basic || D.basic) : {}, bars = D.bars ? (D.bars.bars || D.bars) : {}, cd = D.cooldowns ? (D.cooldowns.cooldowns || D.cooldowns) : null;
+    $('playerCard').hidden = false;
+    $('pName').textContent = b.name || 'Player';
+    $('pSub').textContent = [b.level != null ? 'Level ' + b.level : '', b.player_id != null ? 'ID ' + b.player_id : '', b.gender || ''].filter(Boolean).join(' · ');
+    var st = b.status || {}, state = String(st.state || ''), chip = $('pStatus');
+    chip.textContent = st.description || state || 'Status unknown';
+    chip.className = 'chip ' + (state === 'Okay' ? 'ok' : state === 'Hospital' || state === 'Jail' ? 'bad' : state ? 'warn' : '');
+    var g = '';
+    [['energy', 'Energy'], ['nerve', 'Nerve'], ['happy', 'Happy'], ['life', 'Life']].forEach(function (p) {
+      var o = bars[p[0]];
+      if (!o || o.current == null) return;
+      var cur = num(o.current), max = Math.max(1, num(o.maximum)), frac = Math.max(0, Math.min(1, cur / max));
+      var fullAt = num(o.fulltime) > 0 ? Date.now() + num(o.fulltime) * 1000 : 0;
+      g += '<div class="gauge"><div class="ring"><svg viewBox="0 0 80 80"><circle class="trk" cx="40" cy="40" r="34"/><circle class="val" cx="40" cy="40" r="34" stroke="' + COLORS[p[0]] + '" style="stroke-dashoffset:' + (213.63 * (1 - frac)).toFixed(2) + '"/></svg><div class="txt"><div>' + fmt(cur) + '<small>of ' + fmt(max) + '</small></div></div></div><div class="g-name">' + p[1] + '</div><div class="g-eta" data-fullat="' + fullAt + '">' + (cur >= max ? 'Full' : '') + '</div></div>';
+    });
+    $('gauges').innerHTML = g || '<p class="muted">Torn did not return bars for this key.</p>';
+    var c = '';
+    if (cd) [['drug', 'Drug'], ['medical', 'Medical'], ['booster', 'Booster']].forEach(function (p) {
+      if (cd[p[0]] == null) return;
+      c += '<div class="cd"><span class="lbl">' + p[1] + ' cooldown</span><b data-endat="' + (num(cd[p[0]]) > 0 ? Date.now() + num(cd[p[0]]) * 1000 : 0) + '">-</b></div>';
+    });
+    $('cds').innerHTML = c;
+    tick();
+    clearInterval(ticker); ticker = setInterval(tick, 1000);
+    $('stamp').textContent = 'Updated ' + new Date(fetchedAt).toLocaleTimeString();
+  }
+  function dur(ms) {
+    var s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), r = s % 60;
+    return h > 0 ? h + 'h ' + m + 'm' : m > 0 ? m + 'm ' + r + 's' : r + 's';
+  }
+  function tick() {
+    var now = Date.now();
+    Array.prototype.forEach.call(document.querySelectorAll('[data-fullat]'), function (el) {
+      var t = num(el.getAttribute('data-fullat'));
+      el.textContent = t > 0 ? (t - now > 0 ? 'Full in ' + dur(t - now) : 'Full') : el.textContent;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-endat]'), function (el) {
+      var t = num(el.getAttribute('data-endat'));
+      el.textContent = t > now ? dur(t - now) : 'Ready';
+      el.style.color = t > now ? '' : 'var(--green)';
+    });
+    updateSince();
+  }
+
+  /* ---------- gym planner ---------- */
+  var GK = [['str', 'gStr', 'Strength'], ['def', 'gDef', 'Defense'], ['spd', 'gSpd', 'Speed'], ['dex', 'gDex', 'Dexterity']];
+  function buildSliders() {
+    $('sliders').innerHTML = GK.map(function (k) { return '<div class="field"><label for="w_' + k[0] + '">' + k[2] + ': <b class="mono" id="wv_' + k[0] + '">0%</b></label><input id="w_' + k[0] + '" type="range" min="0" max="100" value="' + num(S.gym.w[k[0]]) + '"></div>'; }).join('');
+    GK.forEach(function (k) { on('w_' + k[0], 'input', function () { S.gym.w[k[0]] = num($('w_' + k[0]).value); save(); renderGym(); }); });
+  }
+  function renderGym() {
+    var g = S.gym, v = GK.map(function (k) { return num(g[k[0]]); }), w = GK.map(function (k) { return num(g.w[k[0]]); });
+    var energy = num(g.energy), per = num(g.per), gain = num(g.gain), trains = per > 0 ? Math.floor(energy / per) : 0, sw = w.reduce(function (a, b) { return a + b; }, 0) || 1;
+    GK.forEach(function (k, i) { var el = $('wv_' + k[0]); if (el) el.textContent = Math.round(w[i] / sw * 100) + '%'; });
+    var add = w.map(function (x) { return trains * gain * x / sw; }), after = v.map(function (x, i) { return x + add[i]; });
+    var sum = function (a) { return a.reduce(function (t, x) { return t + x; }, 0); };
+    var max = Math.max.apply(null, [1].concat(after));
+    $('gymSummary').textContent = trains > 0 || sum(v) > 0
+      ? 'Trains available: ' + fmt(trains) + '\nCurrent total: ' + fmt(sum(v)) + '\nEstimated gain: ' + fmt(sum(add)) + '\nEstimated new total: ' + fmt(sum(after))
+      : 'Enter your stats and energy to see a plan.';
+    $('gymSummary').className = 'status' + (sum(add) > 0 ? ' ok' : '');
+    $('gymBars').innerHTML = GK.map(function (k, i) {
+      return '<div class="br"><div class="top"><span>' + k[2] + '</span><span class="mono">' + fmt(v[i]) + ' → ' + fmt(after[i]) + '</span></div><div class="track"><i class="base" style="width:' + (v[i] / max * 100).toFixed(1) + '%"></i><i style="width:' + (after[i] / max * 100).toFixed(1) + '%;opacity:.85"></i></div></div>';
+    }).join('');
+  }
+  GK.forEach(function (k) {
+    var el = $(k[1]); el.value = S.gym[k[0]] === '' ? '' : S.gym[k[0]];
+    on(k[1], 'input', function () { S.gym[k[0]] = $(k[1]).value; save(); renderGym(); });
+  });
+  [['gEnergy', 'energy'], ['gPer', 'per'], ['gGain', 'gain']].forEach(function (p) {
+    $(p[0]).value = S.gym[p[1]] === undefined ? '' : S.gym[p[1]];
+    on(p[0], 'input', function () { S.gym[p[1]] = $(p[0]).value; save(); renderGym(); });
+  });
+  function autofillGym(force) {
+    var bs = D.battlestats ? (D.battlestats.battlestats || D.battlestats) : null, bars = D.bars ? (D.bars.bars || D.bars) : null, filled = false;
+    if (bs) GK.forEach(function (k) { if (bs[k[2].toLowerCase()] != null && (force || S.gym[k[0]] === '')) { S.gym[k[0]] = String(num(bs[k[2].toLowerCase()])); $(k[1]).value = S.gym[k[0]]; filled = true; } });
+    if (bars && bars.energy && bars.energy.current != null && (force || S.gym.energy === '')) { S.gym.energy = String(num(bars.energy.current)); $('gEnergy').value = S.gym.energy; filled = true; }
+    if (filled) { save(); renderGym(); }
+    return filled;
+  }
+  on('loadStats', 'click', function () { if (!D.battlestats && !D.bars) { toast('Connect your key on the Home tab first'); return; } toast(autofillGym(true) ? 'Loaded from Torn' : 'Torn did not return battle stats for this key'); });
+
+  /* ---------- abroad ---------- */
+  function renderAbroad() {
+    var rows = S.abroad.map(function (r, i) {
+      var fee = Math.min(100, Math.max(0, num(r.fee))) / 100, net = num(r.sell) * (1 - fee) - num(r.buy), total = net * num(r.qty) - num(r.cost), hrs = num(r.flight) > 0 ? num(r.flight) * 2 / 60 : 0;
+      return { r: r, i: i, net: net, total: total, perHr: hrs > 0 ? total / hrs : null };
+    }).sort(function (a, b) { return b.total - a.total; });
+    $('aList').innerHTML = rows.length ? rows.map(function (o, k) {
+      return '<div class="item"><div class="head"><h3>' + esc(o.r.name || 'Item') + (k === 0 && o.total > 0 ? ' <span class="chip ok plain">Best</span>' : '') + '</h3><span class="mono ' + (o.total >= 0 ? 'good' : 'loss') + '">' + money(o.total) + '</span></div>' +
+        '<p class="muted small mono">Net per item ' + money(o.net) + ' · Qty ' + fmt(num(o.r.qty)) + (o.perHr !== null ? ' · ' + money(o.perHr) + ' per hour of flying' : '') + '</p>' +
+        '<div class="row"><button class="ghost small" data-adel="' + o.i + '" type="button">Remove</button></div></div>';
+    }).join('') : '<p class="muted">Nothing yet. Add an item above.</p>';
+  }
+  on('aAdd', 'click', function () {
+    var r = { name: $('aName').value.trim(), buy: num($('aBuy').value), sell: num($('aSell').value), qty: num($('aQty').value) || 1, cost: num($('aCost').value), fee: num($('aFee').value), flight: num($('aFlight').value) };
+    if (!r.name && !r.buy && !r.sell) { toast('Enter an item and prices first'); return; }
+    S.abroad.push(r); save(); renderAbroad(); toast('Added');
+    ['aName', 'aBuy', 'aSell', 'aQty'].forEach(function (id) { $(id).value = ''; });
+  });
+  on('aClear', 'click', function () { S.abroad = []; save(); renderAbroad(); });
+  on('aList', 'click', function (ev) { var t = ev.target; if (t.getAttribute && t.getAttribute('data-adel') !== null) { S.abroad.splice(num(t.getAttribute('data-adel')), 1); save(); renderAbroad(); } });
+
+  /* ---------- crimes ---------- */
+  function flat(o, prefix, out) {
+    Object.keys(o || {}).forEach(function (k) {
+      var v = o[k], name = prefix ? prefix + ' ' + k : k;
+      if (k === 'server_time' || k === 'timestamp') return;
+      if (v && typeof v === 'object') flat(v, name, out);
+      else if (typeof v === 'number') out.push([name.replace(/_/g, ' '), v]);
+    });
+    return out;
+  }
+  function renderCrimes() {
+    var box = $('crimeBox');
+    if (!D.crimes) { box.className = 'status'; box.textContent = D.basic || D.bars ? 'Torn did not return crime data for this key. Check the connection check on the Home tab.' : 'Connect your key on the Home tab first.'; return; }
+    var q = $('cFilter').value.trim().toLowerCase(), items = flat(D.crimes.criminalrecord || D.crimes.crimes || D.crimes, '', []).filter(function (x) { return !q || x[0].toLowerCase().indexOf(q) >= 0; });
+    box.className = ''; box.removeAttribute('style');
+    box.innerHTML = items.length ? '<div class="tiles">' + items.map(function (x) { return '<div class="tile"><div class="n">' + esc(x[0].replace(/^./, function (c) { return c.toUpperCase(); })) + '</div><div class="v">' + fmt(x[1]) + '</div></div>'; }).join('') + '</div>' : '<div class="status">No numbers match that filter.</div>';
+  }
+  on('cFilter', 'input', renderCrimes);
+  on('refreshCrimes', 'click', function () { if (!$('apiKey').value.trim()) { toast('Connect your key first'); return; } return connect(true).then(function () { toast('Refreshed'); }); });
+
+  /* ---------- food ---------- */
+  function renderFood() {
+    var list = S.foods.map(function (f, i) { return { f: f, i: i, eff: num(f.price) > 0 ? num(f.energy) / num(f.price) : 0 }; }).sort(function (a, b) { return b.eff - a.eff; });
+    var max = Math.max.apply(null, [0.0001].concat(list.map(function (o) { return o.eff; })));
+    $('fList').innerHTML = list.length ? list.map(function (o, k) {
+      return '<div class="br"><div class="top"><span>' + (k === 0 ? '<span class="chip ok plain">Best</span> ' : '') + esc(o.f.name || 'Item') + '</span><span class="mono">' + (num(o.f.price) > 0 ? fmt(o.eff) + ' energy per $' : 'no price') + '</span></div><div class="track"><i style="width:' + (o.eff / max * 100).toFixed(1) + '%"></i></div>' +
+        '<p class="muted small mono" style="margin-top:4px">' + money(num(o.f.price)) + ' · energy ' + fmt(num(o.f.energy)) + (o.f.happy == null ? '' : ' · happy ' + fmt(num(o.f.happy))) + ' <button class="ghost small" data-fdel="' + o.i + '" type="button" style="margin-left:8px">Remove</button></p></div>';
+    }).join('') : '<p class="muted">No items yet.</p>';
+  }
+  on('fAdd', 'click', function () {
+    var name = $('fName').value.trim() || 'Item ' + (S.foods.length + 1);
+    S.foods.push({ name: name, price: num($('fPrice').value), energy: num($('fEnergy').value), happy: $('fHappy').value === '' ? null : num($('fHappy').value) });
+    save(); renderFood(); toast('Added');
+    ['fName', 'fPrice', 'fEnergy', 'fHappy'].forEach(function (id) { $(id).value = ''; });
+  });
+  on('fClear', 'click', function () { S.foods = []; save(); renderFood(); });
+  on('fList', 'click', function (ev) { var t = ev.target; if (t.getAttribute && t.getAttribute('data-fdel') !== null) { S.foods.splice(num(t.getAttribute('data-fdel')), 1); save(); renderFood(); } });
+
+  /* ---------- notes ---------- */
+  function updateSince() {
+    var el = $('nSince'), t = S.notes.last ? new Date(S.notes.last).getTime() : 0;
+    if (!el) return;
+    el.textContent = t && isFinite(t) ? 'Time since last drug use: ' + dur(Date.now() - t) : 'No drug use time saved.';
+  }
+  [['nLevel', 'level'], ['nLast', 'last'], ['nNote', 'note']].forEach(function (p) {
+    $(p[0]).value = S.notes[p[1]] || '';
+    on(p[0], 'input', function () { S.notes[p[1]] = $(p[0]).value; save(); updateSince(); });
+  });
+  on('nClear', 'click', function () { S.notes = { level: '', last: '', note: '' }; ['nLevel', 'nLast', 'nNote'].forEach(function (id) { $(id).value = ''; }); save(); updateSince(); toast('Notes cleared'); });
+
+  /* ---------- connect controls ---------- */
+  function persistKey() {
+    try { if ($('remember').checked) localStorage.setItem(KKEY, $('apiKey').value.trim()); else localStorage.removeItem(KKEY); } catch (e) { /* storage unavailable */ }
+  }
+  on('connect', 'click', function () { return connect(false); });
+  $('apiKey').addEventListener('keydown', function (e) { if (e.key === 'Enter') safe(function () { return connect(false); })(); });
+  on('clearKey', 'click', function () {
+    $('apiKey').value = ''; $('remember').checked = false; D = {};
+    try { localStorage.removeItem(KKEY); } catch (e) { /* storage unavailable */ }
+    clearInterval(ticker); clearInterval(autoT); $('auto').checked = false;
+    $('playerCard').hidden = true; setChip('Not connected', ''); setStatus('Key cleared. Nothing is saved.');
+    renderCrimes(); toast('Key cleared');
+  });
+  on('auto', 'change', function () {
+    clearInterval(autoT);
+    if ($('auto').checked) { if (!$('apiKey').value.trim()) { $('auto').checked = false; toast('Connect first'); return; } autoT = setInterval(safe(function () { return connect(true); }), 60000); toast('Refreshing every minute'); }
+  });
+  on('remember', 'change', function () { if (!$('remember').checked) { try { localStorage.removeItem(KKEY); } catch (e) { /* storage unavailable */ } } else if ($('apiKey').value.trim()) { persistKey(); toast('Key saved on this device'); } });
+
+  /* ---------- start ---------- */
+  buildSliders(); renderGym(); renderAbroad(); renderFood(); renderCrimes(); updateSince();
+  setInterval(updateSince, 1000);
+  try {
+    var k = localStorage.getItem(KKEY);
+    if (k) { $('apiKey').value = k; $('remember').checked = true; connect(true); }
+  } catch (e) { /* storage unavailable */ }
+})();
+</script>
+</body>
+</html>
